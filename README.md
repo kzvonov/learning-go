@@ -17,4 +17,4 @@ To import local module `import "./handlers"` you need to run program this way `G
 
 ## Next Lesson >>
 
-https://www.youtube.com/watch?v=eBeqtmrvVpg&list=PLmD8u-IFdreyh6EUfevBcbiuCKzFk0EW_&index=5
+https://www.youtube.com/watch?v=gE8_-8KoOLc&list=PLmD8u-IFdreyh6EUfevBcbiuCKzFk0EW_&index=6
