@@ -1,5 +1,7 @@
 {
     "id": 1,
     "name": "tea",
+    "price": 1.2,
+    "sku": "ok-go-kir",
     "description": "a nice cup of tea"
 }
