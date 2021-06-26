@@ -8,34 +8,50 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/go-openapi/runtime/middleware"
 	"github.com/gorilla/mux"
-
+	"github.com/kzvonov/learning-go/data"
 	"github.com/kzvonov/learning-go/handlers"
 )
 
 func main() {
 	l := log.New(os.Stdout, "product-api", log.LstdFlags)
+	v := data.NewValidation()
 
-	ph := handlers.NewProducts(l)
+	// Crate Handlers
+	ph := handlers.NewProducts(l, v)
+
+	// create a new serve mux and register the handlers
 	sm := mux.NewRouter()
 
-	getRouter := sm.Methods(http.MethodGet).Subrouter()
-	getRouter.HandleFunc("/", ph.GetProducts)
+	getR := sm.Methods(http.MethodGet).Subrouter()
+	getR.HandleFunc("/products", ph.Get)
 
-	putRouter := sm.Methods(http.MethodPut).Subrouter()
-	putRouter.HandleFunc("/{id:[0-9]+}", ph.UpdateProduct)
-	putRouter.Use(ph.MiddlewareProductValidation)
+	putR := sm.Methods(http.MethodPut).Subrouter()
+	putR.HandleFunc("/products/{id:[0-9]+}", ph.Update)
+	putR.Use(ph.MiddlewareValidateProduct)
 
-	postRouter := sm.Methods(http.MethodPost).Subrouter()
-	postRouter.HandleFunc("/", ph.CreateProduct)
-	postRouter.Use(ph.MiddlewareProductValidation)
+	postR := sm.Methods(http.MethodPost).Subrouter()
+	postR.HandleFunc("/products", ph.Create)
+	postR.Use(ph.MiddlewareValidateProduct)
+
+	deleteR := sm.Methods(http.MethodDelete).Subrouter()
+	deleteR.HandleFunc("/products/{id:[0-9]+}", ph.Delete)
+
+	// handler for documentation
+	ops := middleware.RedocOpts{SpecURL: "/swagger.yml"}
+	sh := middleware.Redoc(ops, nil)
+
+	getR.Handle("/docs", sh)
+	getR.Handle("/swagger.yml", http.FileServer(http.Dir("./")))
 
 	s := http.Server{
 		Addr:         ":9090",
 		Handler:      sm,
-		IdleTimeout:  120 * time.Second,
+		ErrorLog:     l,
 		ReadTimeout:  1 * time.Second,
 		WriteTimeout: 1 * time.Second,
+		IdleTimeout:  120 * time.Second,
 	}
 
 	go func() {

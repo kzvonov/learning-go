@@ -14,7 +14,3 @@ To import local module `import "./handlers"` you need to run program this way `G
 ## 3. RESTful services
 
 * [RESTful best practices](https://docs.microsoft.com/en-us/azure/architecture/best-practices/api-design)
-
-## Next Lesson >>
-
-https://www.youtube.com/watch?v=gE8_-8KoOLc&list=PLmD8u-IFdreyh6EUfevBcbiuCKzFk0EW_&index=6

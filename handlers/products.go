@@ -1,7 +1,21 @@
+// Package classification on Product API
+//
+// Document for Product API
+//
+// Schemas: http
+// BasePath: /
+// Version: 1.0.0
+//
+// Consumes:
+// 	- applictaion/json
+//
+// Produces:
+// 	-application/json
+//
+// swagger:meta
 package handlers
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -11,66 +25,44 @@ import (
 	"github.com/kzvonov/learning-go/data"
 )
 
-type Products struct {
-	l *log.Logger
-}
-
-func NewProducts(l *log.Logger) *Products {
-	return &Products{l}
-}
-
-func (p *Products) GetProducts(rw http.ResponseWriter, r *http.Request) {
-	lp := data.GetProducts()
-	err := lp.ToJSON(rw)
-	if err != nil {
-		http.Error(rw, "Unable to marshal json", http.StatusInternalServerError)
-	}
-}
-
-func (p *Products) CreateProduct(rw http.ResponseWriter, r *http.Request) {
-	product := r.Context().Value(KeyProduct{}).(data.Product)
-	data.AddProduct(&product)
-}
-
-func (p *Products) UpdateProduct(rw http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-
-	id, err := strconv.Atoi(vars["id"])
-	if err != nil {
-		http.Error(rw, "Unable to convert id", http.StatusBadRequest)
-	}
-
-	product := r.Context().Value(KeyProduct{}).(data.Product)
-	err = data.UpdateProduct(id, &product)
-	if err == data.ErrProductNotFound {
-		http.Error(rw, "Product not found", http.StatusNotFound)
-	}
-}
-
 type KeyProduct struct{}
 
-func (p *Products) MiddlewareProductValidation(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-		product := data.Product{}
+type Products struct {
+	l *log.Logger
+	v *data.Validation
+}
 
-		err := product.FromJSON(r.Body)
-		if err != nil {
-			http.Error(rw, "Unable to decode JSON", http.StatusBadRequest)
-			return
-		}
+func NewProducts(l *log.Logger, v *data.Validation) *Products {
+	return &Products{l, v}
+}
 
-		err = product.Validate()
-		if err != nil {
-			http.Error(
-				rw,
-				fmt.Sprint("Error validation: $s", err),
-				http.StatusBadRequest,
-			)
-		}
+// ErrInvalidProductPath is an error message when the product path is not valid
+var ErrInvalidProductPath = fmt.Errorf("Invalid Path, path should be /products/[id]")
 
-		ctx := context.WithValue(r.Context(), KeyProduct{}, product)
-		rCopy := r.WithContext(ctx)
+// GenericError is a generic error message returned by a server
+type GenericError struct {
+	Message string `json:"message"`
+}
 
-		next.ServeHTTP(rw, rCopy)
-	})
+// ValidationError is a collection of validation error messages
+type ValidationError struct {
+	Messages []string `json:"messages"`
+}
+
+// getProductID returns the product ID from the URL
+// Panics if cannot convert the id into an integer
+// this should never happen as the router ensures that
+// this is a valid number
+func getProductID(r *http.Request) int {
+	// parse the product id from the url
+	vars := mux.Vars(r)
+
+	// convert the id into an integer and return
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		// should never happen
+		panic(err)
+	}
+
+	return id
 }
