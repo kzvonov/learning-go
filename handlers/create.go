@@ -16,7 +16,6 @@ import (
 
 // Create handles POST requests to add new products
 func (p *Products) Create(rw http.ResponseWriter, r *http.Request) {
-	product := r.Context().Value(KeyProduct{}).(data.Product)
-
-	data.AddProduct(&product)
+	product := r.Context().Value(KeyProduct{}).(*data.Product)
+	data.CreateProduct(product)
 }

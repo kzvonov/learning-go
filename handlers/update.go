@@ -18,8 +18,8 @@ import (
 func (p *Products) Update(rw http.ResponseWriter, r *http.Request) {
 	id := getProductID(r)
 
-	product := r.Context().Value(KeyProduct{}).(data.Product)
-	err := data.UpdateProduct(id, &product)
+	product := r.Context().Value(KeyProduct{}).(*data.Product)
+	err := data.UpdateProduct(id, product)
 	if err == data.ErrProductNotFound {
 		rw.WriteHeader(http.StatusNotFound)
 		data.ToJSON(&GenericError{Message: "Product not found"}, rw)

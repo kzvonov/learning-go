@@ -55,7 +55,7 @@ func GetProducts() Products {
 	return productList
 }
 
-func AddProduct(p *Product) {
+func CreateProduct(p *Product) {
 	p.ID = getNextID()
 	productList = append(productList, p)
 }
