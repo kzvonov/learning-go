@@ -26,6 +26,7 @@ func main() {
 
 	getR := sm.Methods(http.MethodGet).Subrouter()
 	getR.HandleFunc("/products", ph.Get)
+	getR.HandleFunc("/products/{id:[0-9]+}", ph.GetOne)
 
 	putR := sm.Methods(http.MethodPut).Subrouter()
 	putR.HandleFunc("/products/{id:[0-9]+}", ph.Update)

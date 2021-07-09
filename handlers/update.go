@@ -6,7 +6,7 @@ import (
 	"github.com/kzvonov/learning-go/data"
 )
 
-// swagger:route PUT /products products updateProduct
+// swagger:route PUT /products/{id} products updateProduct
 // Update a products details
 //
 // responses:

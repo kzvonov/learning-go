@@ -82,6 +82,11 @@ func DeleteProduct(id int) error {
 	return nil
 }
 
+func GetProductByID(id int) (*Product, error) {
+	p, _, err := findProduct(id)
+	return p, err
+}
+
 func findProduct(id int) (*Product, int, error) {
 	for i, p := range productList {
 		if p.ID == id {
